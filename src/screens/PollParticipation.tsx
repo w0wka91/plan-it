@@ -13,11 +13,6 @@ interface Props {
   pollId: string;
 }
 
-interface Vote {
-  participantName: string;
-  selectedOptions: Date[];
-}
-
 type State = {
   vote: Vote;
 };
@@ -70,6 +65,8 @@ const PollParticipation: React.FC<RouteComponentProps<Props>> = ({
 }: RouteComponentProps<Props>) => {
   const { db } = useFirebase();
   const poll = usePoll(pollId);
+  const votes = useVotes(pollId);
+
   const [state, dispatch] = useReducer(reducer, {
     vote: { participantName: "", selectedOptions: [] }
   });
@@ -138,17 +135,15 @@ const PollParticipation: React.FC<RouteComponentProps<Props>> = ({
                 className={css`
                   border-collapse: collapse;
                   ${tableBorder}
-                  td, th {
-                    ${tableBorder}
-                  }
                   td {
+                    ${tableBorder}
                     padding: 1.2rem;
                   }
                 `}
               >
-                <TableHeader poll={poll} />
+                <TableHeader poll={poll} votes={votes} />
                 <tbody>
-                  <Votes poll={poll} />
+                  <Votes poll={poll} votes={votes} />
                   <tr>
                     <td>
                       <Input
@@ -207,12 +202,21 @@ const PollParticipation: React.FC<RouteComponentProps<Props>> = ({
   );
 };
 
-const TableHeader: React.FC<{ poll: Poll }> = ({ poll }) => {
+const TableHeader: React.FC<{ poll: Poll; votes: Vote[] }> = ({ poll }) => {
+  const votes = useVotes(poll.id);
+
+  const voteSummary = poll.options.map(
+    opt =>
+      votes
+        .flatMap(v => v.selectedOptions)
+        .filter(votedOpt => votedOpt.getTime() === opt.getTime()).length
+  );
+
   return (
     <thead>
       <tr>
         <th />
-        {poll.options.map(opt => (
+        {poll.options.map((opt, idx) => (
           <th
             key={opt.getTime()}
             className={css`
@@ -221,28 +225,59 @@ const TableHeader: React.FC<{ poll: Poll }> = ({ poll }) => {
           >
             <div
               className={css`
+                position: relative;
                 display: flex;
                 flex-direction: column;
+                min-width: 6.1rem;
+                border-radius: 3px;
               `}
             >
               <span
                 className={css`
-                  font-size: 2rem;
+                  font-size: 1.6rem;
+                  padding: 0.4rem 1.6rem;
                   font-weight: 400;
-                  color: ${colors.grey700};
+                  color: #fff;
+                  background: ${colors.red300};
                 `}
               >
                 {opt.toLocaleString("default", { month: "short" })}
               </span>
               <span
                 className={css`
-                  font-size: 2.4rem;
-                  font-weight: 600;
+                  font-size: 1.8rem;
+                  padding: 0.8rem 1.2rem;
+                  font-weight: 400;
                   color: ${colors.grey800};
+                  border: 1px solid ${colors.grey200};
+                  border-top: none;
                 `}
               >
                 {opt.getDate()}
               </span>
+              {voteSummary[idx] > 0 && (
+                <div
+                  className={css`
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    color: #fff;
+                    font-weight: 600;
+                    position: absolute;
+                    top: -0.9rem;
+                    right: -0.9rem;
+                    font-size: 0.9rem;
+                    background: ${Math.max(...voteSummary) === voteSummary[idx]
+                      ? colors.green500
+                      : colors.grey300};
+                    height: 1.8rem;
+                    width: 1.8rem;
+                    border-radius: 100px;
+                  `}
+                >
+                  {voteSummary[idx]}
+                </div>
+              )}
             </div>
           </th>
         ))}
@@ -251,9 +286,7 @@ const TableHeader: React.FC<{ poll: Poll }> = ({ poll }) => {
   );
 };
 
-const Votes: React.FC<{ poll: Poll }> = ({ poll }) => {
-  const votes = useVotes(poll.id);
-
+const Votes: React.FC<{ poll: Poll; votes: Vote[] }> = ({ poll, votes }) => {
   return (
     <>
       {votes.map(vote => (
