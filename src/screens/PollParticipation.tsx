@@ -153,6 +153,7 @@ const PollParticipation: React.FC<RouteComponentProps<Props>> = ({
                     <td>
                       <Input
                         type="text"
+                        autoComplete="off"
                         placeholder="Your name"
                         value={state.vote.participantName}
                         onChange={evt =>
