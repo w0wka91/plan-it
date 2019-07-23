@@ -9,6 +9,7 @@ function useVotes(pollId?: string) {
     db.collection("polls")
       .doc(pollId)
       .collection("votes")
+      .orderBy("participantName")
       .onSnapshot(data => {
         setVotes(data.docs
           .map(doc => ({ id: doc.id, data: doc.data() }))
