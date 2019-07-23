@@ -1,7 +1,7 @@
 import { RouteComponentProps } from "@reach/router";
 import { css } from "emotion";
 import React, { useReducer, useEffect, useRef } from "react";
-import { Button, Calendar, Input } from "react-atomicus";
+import { Button, Calendar, Input, Checkbox } from "react-atomicus";
 import { Footer } from "../components/Footer";
 import Heading from "../components/Heading";
 import { useFirebase } from "../context/firebase-context";
@@ -20,6 +20,7 @@ type Action =
   | { type: "change-title"; title: string }
   | { type: "change-creator-name"; name: string }
   | { type: "change-creator-email"; email: string }
+  | { type: "toggle-update-me" }
   | { type: "add-option"; option: Date }
   | { type: "delete-option"; option: Date }
   | { type: "finish-poll-creation"; id: string };
@@ -70,6 +71,17 @@ const appReducer: React.Reducer<State, Action> = (
           creator: { ...prevState.poll.creator, email: action.email }
         }
       };
+    case "toggle-update-me":
+      return {
+        ...prevState,
+        poll: {
+          ...prevState.poll,
+          creator: {
+            ...prevState.poll.creator,
+            updateMe: !prevState.poll.creator.updateMe
+          }
+        }
+      };
     case "add-option":
       return {
         ...prevState,
@@ -109,7 +121,7 @@ const PollCreation: React.FC<RouteComponentProps> = () => {
     poll: {
       title: "",
       options: [],
-      creator: { name: "", email: "" }
+      creator: { name: "", email: "", updateMe: false }
     },
     isContinueBtnActive: false
   });
@@ -269,7 +281,7 @@ const CreatorInfoForm: React.FC<StepProps> = ({
     }
   }, [state.poll.creator.email, state.poll.creator.name, dispatch]);
   return (
-    <>
+    <div>
       <Heading>Tell your participants who you are?</Heading>
       <Input
         autoFocus
@@ -292,6 +304,9 @@ const CreatorInfoForm: React.FC<StepProps> = ({
         autoComplete="off"
         type="text"
         value={state.poll.creator.email}
+        className={css`
+          margin-bottom: 1.6rem;
+        `}
         onChange={e =>
           dispatch({
             type: "change-creator-email",
@@ -300,7 +315,12 @@ const CreatorInfoForm: React.FC<StepProps> = ({
         }
         fluid
       />
-    </>
+      <Checkbox
+        label="Stay updated"
+        onChange={() => dispatch({ type: "toggle-update-me" })}
+        checked={state.poll.creator.updateMe}
+      />
+    </div>
   );
 };
 

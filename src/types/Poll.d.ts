@@ -4,6 +4,7 @@ type Poll = {
   creator: {
     name: string;
     email: string;
+    updateMe: boolean;
   };
   options: Date[];
 };
