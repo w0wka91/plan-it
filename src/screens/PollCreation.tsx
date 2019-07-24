@@ -5,6 +5,7 @@ import { Button, Calendar, Input } from "react-atomicus";
 import { Footer } from "../components/Footer";
 import Heading from "../components/Heading";
 import { useFirebase } from "../context/firebase-context";
+import { AppCard } from "../components/AppCard";
 
 type State = {
   currentStep: number;
@@ -149,55 +150,57 @@ const PollCreation: React.FC<RouteComponentProps> = () => {
     }
   };
   return (
-    <form
-      onSubmit={ev => {
-        ev.preventDefault();
-      }}
-    >
-      <div
-        className={css`
-          display: flex;
-          padding: 6.4rem;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          min-width: 51.2rem;
-          min-height: 38.4rem;
-        `}
+    <AppCard>
+      <form
+        onSubmit={ev => {
+          ev.preventDefault();
+        }}
       >
-        {renderStep(state.currentStep)}
-      </div>
-      {!isFinished && (
-        <Footer>
-          <Button
-            title="Previous step"
-            hierarchy="tertiary"
-            disabled={state.currentStep === 1}
-            className={css`
-              margin-right: auto;
-            `}
-            size="large"
-            type="button"
-            onClick={() => dispatch({ type: "prev-step" })}
-          >
-            Back
-          </Button>
-          <Button
-            disabled={!state.isContinueBtnActive}
-            type="submit"
-            title="Next step"
-            size="medium"
-            onClick={() =>
-              state.currentStep !== 3
-                ? dispatch({ type: "next-step" })
-                : finishPollCreation()
-            }
-          >
-            <span>{state.currentStep !== 3 ? "Continue" : "Finish"}</span>
-          </Button>
-        </Footer>
-      )}
-    </form>
+        <div
+          className={css`
+            display: flex;
+            padding: 6.4rem;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-width: 51.2rem;
+            min-height: 38.4rem;
+          `}
+        >
+          {renderStep(state.currentStep)}
+        </div>
+        {!isFinished && (
+          <Footer>
+            <Button
+              title="Previous step"
+              hierarchy="tertiary"
+              disabled={state.currentStep === 1}
+              className={css`
+                margin-right: auto;
+              `}
+              size="large"
+              type="button"
+              onClick={() => dispatch({ type: "prev-step" })}
+            >
+              Back
+            </Button>
+            <Button
+              disabled={!state.isContinueBtnActive}
+              type="submit"
+              title="Next step"
+              size="medium"
+              onClick={() =>
+                state.currentStep !== 3
+                  ? dispatch({ type: "next-step" })
+                  : finishPollCreation()
+              }
+            >
+              <span>{state.currentStep !== 3 ? "Continue" : "Finish"}</span>
+            </Button>
+          </Footer>
+        )}
+      </form>
+    </AppCard>
   );
 };
 

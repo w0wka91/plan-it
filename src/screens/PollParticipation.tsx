@@ -1,4 +1,4 @@
-import { RouteComponentProps } from "@reach/router";
+import { RouteComponentProps, navigate } from "@reach/router";
 import { css } from "emotion";
 import React, { useReducer } from "react";
 import { Button, Checkbox, colors, Icon, Input } from "react-atomicus";
@@ -8,6 +8,8 @@ import { useFirebase } from "../context/firebase-context";
 import { usePoll } from "../hooks/usePoll";
 import { useVotes } from "../hooks/useVotes";
 import { Center } from "../components/Center";
+import { FullPageSpinner } from "../components/FullPageSpinner";
+import { AppCard } from "../components/AppCard";
 
 interface Props {
   pollId: string;
@@ -64,7 +66,7 @@ const PollParticipation: React.FC<RouteComponentProps<Props>> = ({
   pollId
 }: RouteComponentProps<Props>) => {
   const { db } = useFirebase();
-  const poll = usePoll(pollId);
+  const { firstAttemptFinished, poll } = usePoll(pollId);
   const votes = useVotes(pollId);
 
   const [state, dispatch] = useReducer(reducer, {
@@ -90,115 +92,126 @@ const PollParticipation: React.FC<RouteComponentProps<Props>> = ({
   const tableBorder = css`
     border: 1px solid ${colors.grey200};
   `;
+
+  if (!firstAttemptFinished) {
+    return <FullPageSpinner />;
+  }
+
   return (
-    <form
-      onSubmit={ev => {
-        ev.preventDefault();
-      }}
-    >
-      <div
-        className={css`
-          display: flex;
-          padding: 6.4rem;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          min-width: 51.2rem;
-          min-height: 38.4rem;
-        `}
-      >
-        {poll && (
-          <>
-            <Heading
-              className={css`
-                padding-bottom: 0rem;
-              `}
-            >
-              {poll.title}
-            </Heading>
-            <h2
-              className={css`
-                font-size: 1.5rem;
-                font-weight: 400;
-                color: ${colors.grey600};
-              `}
-            >
-              Created by {poll.creator.name}
-            </h2>
-            <Center
-              className={css`
-                width: 100%;
-                padding-top: 4.8rem;
-              `}
-            >
-              <table
-                className={css`
-                  border-collapse: collapse;
-                  ${tableBorder}
-                  td {
-                    ${tableBorder}
-                    padding: 1.2rem;
-                  }
-                `}
-              >
-                <TableHeader poll={poll} votes={votes} />
-                <tbody>
-                  <Votes poll={poll} votes={votes} />
-                  <tr>
-                    <td>
-                      <Input
-                        type="text"
-                        autoComplete="off"
-                        placeholder="Your name"
-                        value={state.vote.participantName}
-                        onChange={evt =>
-                          dispatch({
-                            type: "change-participant-name",
-                            name: evt.currentTarget.value
-                          })
-                        }
-                      />
-                    </td>
-                    {poll.options.map(opt => (
-                      <td key={opt.getTime()}>
-                        <Center>
-                          <Checkbox
-                            onChange={evt => {
-                              if (evt.currentTarget.value === "on") {
-                                dispatch({ type: "add-option", date: opt });
-                              } else {
-                                dispatch({
-                                  type: "remove-option",
-                                  date: opt
-                                });
-                              }
-                            }}
-                            checked={state.vote.selectedOptions
-                              .map(date => date.getTime())
-                              .includes(opt.getTime())}
-                          />
-                        </Center>
-                      </td>
-                    ))}
-                  </tr>
-                </tbody>
-              </table>
-            </Center>
-          </>
-        )}
-      </div>
-      <Footer>
-        <Button
-          disabled={!isVoteBtnActive}
-          title="Vote"
-          type="submit"
-          onClick={vote}
-          size="large"
+    <AppCard>
+      {poll ? (
+        <form
+          onSubmit={ev => {
+            ev.preventDefault();
+          }}
         >
-          Vote
-        </Button>
-      </Footer>
-    </form>
+          <div
+            className={css`
+              display: flex;
+              padding: 6.4rem;
+              flex-direction: column;
+              align-items: center;
+              justify-content: center;
+              min-width: 51.2rem;
+              min-height: 38.4rem;
+            `}
+          >
+            {poll && (
+              <>
+                <Heading
+                  className={css`
+                    padding-bottom: 0rem;
+                  `}
+                >
+                  {poll.title}
+                </Heading>
+                <h2
+                  className={css`
+                    font-size: 1.5rem;
+                    font-weight: 400;
+                    color: ${colors.grey600};
+                  `}
+                >
+                  Created by {poll.creator.name}
+                </h2>
+                <Center
+                  className={css`
+                    width: 100%;
+                    padding-top: 4.8rem;
+                  `}
+                >
+                  <table
+                    className={css`
+                      border-collapse: collapse;
+                      ${tableBorder}
+                      td {
+                        ${tableBorder}
+                        padding: 1.2rem;
+                      }
+                    `}
+                  >
+                    <TableHeader poll={poll} votes={votes} />
+                    <tbody>
+                      <Votes poll={poll} votes={votes} />
+                      <tr>
+                        <td>
+                          <Input
+                            type="text"
+                            autoComplete="off"
+                            placeholder="Your name"
+                            value={state.vote.participantName}
+                            onChange={evt =>
+                              dispatch({
+                                type: "change-participant-name",
+                                name: evt.currentTarget.value
+                              })
+                            }
+                          />
+                        </td>
+                        {poll.options.map(opt => (
+                          <td key={opt.getTime()}>
+                            <Center>
+                              <Checkbox
+                                onChange={evt => {
+                                  if (evt.currentTarget.value === "on") {
+                                    dispatch({ type: "add-option", date: opt });
+                                  } else {
+                                    dispatch({
+                                      type: "remove-option",
+                                      date: opt
+                                    });
+                                  }
+                                }}
+                                checked={state.vote.selectedOptions
+                                  .map(date => date.getTime())
+                                  .includes(opt.getTime())}
+                              />
+                            </Center>
+                          </td>
+                        ))}
+                      </tr>
+                    </tbody>
+                  </table>
+                </Center>
+              </>
+            )}
+          </div>
+          <Footer>
+            <Button
+              disabled={!isVoteBtnActive}
+              title="Vote"
+              type="submit"
+              onClick={vote}
+              size="large"
+            >
+              Vote
+            </Button>
+          </Footer>
+        </form>
+      ) : (
+        <NotFound />
+      )}
+    </AppCard>
   );
 };
 
@@ -313,6 +326,26 @@ const Votes: React.FC<{ poll: Poll; votes: Vote[] }> = ({ poll, votes }) => {
         </tr>
       ))}
     </>
+  );
+};
+
+const NotFound: React.FC = () => {
+  return (
+    <div
+      className={css`
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 6.4rem;
+      `}
+    >
+      <Heading>Ooops! Look's like this page doesn't exist</Heading>
+      <Button onClick={() => navigate("/")} size="large">
+        <Button.Icon name="plus" />
+        <span>Create poll</span>
+      </Button>
+    </div>
   );
 };
 export default PollParticipation;

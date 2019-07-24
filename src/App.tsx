@@ -1,10 +1,10 @@
 import { Router } from "@reach/router";
 import { css } from "emotion";
 import React from "react";
-import { Card, colors } from "react-atomicus";
+import { colors } from "react-atomicus";
+import bg from "./app-bg.jpg";
 import PollCreation from "./screens/PollCreation";
 import PollParticipation from "./screens/PollParticipation";
-import bg from "./app-bg.jpg";
 
 const App: React.FC = () => {
   return (
@@ -36,23 +36,16 @@ const App: React.FC = () => {
             background-image: url(${bg});
             background-size: cover;
             position: fixed;
-            z-index: 1;
+            z-index: -1;
             display: block;
             width: 100%;
             height: 100%;
           `}
         />
-        <Card
-          className={css`
-            border-top: 3px solid ${colors.blue500};
-            z-index: 100;
-          `}
-        >
-          <Router>
-            <PollCreation path="/" />
-            <PollParticipation path="/poll/:pollId" />
-          </Router>
-        </Card>
+        <Router>
+          <PollCreation default path="/" />
+          <PollParticipation path="/poll/:pollId" />
+        </Router>
       </div>
     </>
   );
