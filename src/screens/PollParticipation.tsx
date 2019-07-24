@@ -10,6 +10,7 @@ import { useVotes } from "../hooks/useVotes";
 import { Center } from "../components/Center";
 import { FullPageSpinner } from "../components/FullPageSpinner";
 import { AppCard } from "../components/AppCard";
+import { mq } from "../media-queries";
 
 interface Props {
   pollId: string;
@@ -114,6 +115,9 @@ const PollParticipation: React.FC<RouteComponentProps<Props>> = ({
               justify-content: center;
               min-width: 51.2rem;
               min-height: 38.4rem;
+              ${mq[0]} {
+                min-width: 100%;
+              }
             `}
           >
             {poll && (

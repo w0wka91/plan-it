@@ -6,6 +6,7 @@ import { Footer } from "../components/Footer";
 import Heading from "../components/Heading";
 import { useFirebase } from "../context/firebase-context";
 import { AppCard } from "../components/AppCard";
+import { mq } from "../media-queries";
 
 type State = {
   currentStep: number;
@@ -165,6 +166,9 @@ const PollCreation: React.FC<RouteComponentProps> = () => {
             justify-content: center;
             min-width: 51.2rem;
             min-height: 38.4rem;
+            ${mq[0]} {
+              min-width: 100%;
+            }
           `}
         >
           {renderStep(state.currentStep)}
