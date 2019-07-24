@@ -315,11 +315,11 @@ const CreatorInfoForm: React.FC<StepProps> = ({
         }
         fluid
       />
-      <Checkbox
+      {/* <Checkbox
         label="Stay updated"
         onChange={() => dispatch({ type: "toggle-update-me" })}
         checked={state.poll.creator.updateMe}
-      />
+      /> */}
     </div>
   );
 };
