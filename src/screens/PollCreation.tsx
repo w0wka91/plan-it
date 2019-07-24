@@ -1,6 +1,6 @@
 import { RouteComponentProps } from "@reach/router";
 import { css } from "emotion";
-import React, { useEffect, useReducer, useRef } from "react";
+import React, { useEffect, useReducer, useRef, useState } from "react";
 import { Button, Calendar, Input } from "react-atomicus";
 import { Footer } from "../components/Footer";
 import Heading from "../components/Heading";
@@ -273,9 +273,19 @@ const CreatorInfoForm: React.FC<StepProps> = ({
   state,
   dispatch
 }: StepProps) => {
+  const [emailTouched, setEmailTouched] = useState(false);
+  const emailValid = (val: string) =>
+    /^[a-z0-9][a-z0-9-_\.]+@([a-z]|[a-z0-9]?[a-z0-9-]+[a-z0-9])\.[a-z0-9]{2,10}(?:\.[a-z]{2,10})?$/.test(
+      val
+    );
+  const emailErr =
+    !emailValid(state.poll.creator.email) && emailTouched
+      ? "Please enter a valid email address error message"
+      : "";
   useEffect(() => {
     if (
       state.poll.creator.email.trim() !== "" &&
+      emailValid(state.poll.creator.email) &&
       state.poll.creator.name.trim() !== ""
     ) {
       dispatch({ type: "activate-continue-button" });
@@ -306,10 +316,9 @@ const CreatorInfoForm: React.FC<StepProps> = ({
         label="Email"
         autoComplete="off"
         type="text"
+        onBlur={() => setEmailTouched(true)}
+        error={emailErr}
         value={state.poll.creator.email}
-        className={css`
-          margin-bottom: 1.6rem;
-        `}
         onChange={e =>
           dispatch({
             type: "change-creator-email",
