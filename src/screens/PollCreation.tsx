@@ -1,7 +1,7 @@
 import { RouteComponentProps } from "@reach/router";
 import { css } from "emotion";
-import React, { useReducer, useEffect, useRef } from "react";
-import { Button, Calendar, Input, Checkbox } from "react-atomicus";
+import React, { useEffect, useReducer, useRef } from "react";
+import { Button, Calendar, Input } from "react-atomicus";
 import { Footer } from "../components/Footer";
 import Heading from "../components/Heading";
 import { useFirebase } from "../context/firebase-context";
